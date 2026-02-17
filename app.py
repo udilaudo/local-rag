@@ -98,6 +98,18 @@ with st.sidebar:
                 "📊 Indicizzazione in corso... (può richiedere qualche minuto)"
             ):
                 try:
+                    # Se esiste già un vector store aperto, lo chiudo
+                    # prima di re-indicizzare. Altrimenti ChromaDB tiene
+                    # il file SQLite bloccato e la cancellazione fallisce.
+                    if "vector_store" in st.session_state:
+                        try:
+                            # Chiudo il client ChromaDB per rilasciare il lock sul DB
+                            st.session_state["vector_store"]._client.close()
+                        except Exception:
+                            pass
+                        del st.session_state["vector_store"]
+                        del st.session_state["catena"]
+
                     # Lancio la pipeline completa
                     vector_store = indicizza_documenti()
 
@@ -130,7 +142,7 @@ with st.sidebar:
 
 # === AREA PRINCIPALE ===
 # Titolo e descrizione
-st.title("📚 RAG Pipeline - Paper Scientifici")
+st.title("📚 RAG Pipeline - Personal Document")
 st.markdown(
     "Fai domande sui tuoi documenti PDF. "
     "Il sistema cerca le informazioni rilevanti e genera una risposta con le fonti."

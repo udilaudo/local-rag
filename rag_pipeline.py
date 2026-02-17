@@ -11,7 +11,6 @@ Questo modulo gestisce tutto il flusso RAG:
 """
 
 import os
-import glob
 import shutil
 from typing import Optional
 
@@ -64,9 +63,14 @@ def carica_pdf(cartella: str = config.DOCUMENTS_DIR) -> list:
     """
     documenti = []  # qui accumulo tutti i documenti caricati
 
-    # Trovo tutti i file .pdf nella cartella
-    pattern = os.path.join(cartella, "*.pdf")
-    file_pdf = glob.glob(pattern)
+    # Trovo tutti i file .pdf nella cartella (sia .pdf che .PDF)
+    # glob potrebbe non matchare estensioni maiuscole,
+    # quindi uso os.listdir con filtro case-insensitive
+    file_pdf = [
+        os.path.join(cartella, f)
+        for f in os.listdir(cartella)
+        if f.lower().endswith(".pdf")
+    ]
 
     if not file_pdf:
         print(f"⚠️ Nessun PDF trovato in: {cartella}")
@@ -143,11 +147,22 @@ def _crea_embeddings() -> HuggingFaceEmbeddings:
     Funzione di utilità usata sia per creare che per caricare il vector store,
     così il modello di embedding è sempre lo stesso.
 
+    Usa il modello dalla cartella locale models/ (scaricato da setup_offline.py).
+    Se la cartella locale non esiste, prova a scaricarlo da HuggingFace
+    (ma fallirà in modalità offline).
+
     Returns:
         oggetto HuggingFaceEmbeddings pronto per trasformare testo in vettori
     """
+    # Uso il percorso locale se il modello è stato scaricato con setup_offline.py,
+    # altrimenti uso il nome del modello HuggingFace (richiede internet la prima volta)
+    if os.path.exists(config.EMBEDDING_MODEL_PATH):
+        model_name = config.EMBEDDING_MODEL_PATH
+    else:
+        model_name = config.EMBEDDING_MODEL
+
     return HuggingFaceEmbeddings(
-        model_name=config.EMBEDDING_MODEL,
+        model_name=model_name,
         model_kwargs={"device": "cpu"},  # usa la CPU (funziona ovunque)
     )
 

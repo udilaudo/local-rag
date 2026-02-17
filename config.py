@@ -12,6 +12,9 @@ DOCUMENTS_DIR = os.path.join(os.path.dirname(__file__), "documents")
 # Cartella dove ChromaDB salva il database vettoriale (creata automaticamente)
 CHROMA_DB_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 
+# Cartella locale con il modello di embedding (scaricato da setup_offline.py)
+MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
+
 # === CHUNKING ===
 # Dimensione di ogni chunk di testo (in caratteri)
 # 1000 è un buon compromesso: abbastanza grande da avere contesto,
@@ -26,6 +29,16 @@ CHUNK_OVERLAP = 200
 # Modello sentence-transformers per creare i vettori dai testi
 # all-MiniLM-L6-v2 è leggero (~80MB) e veloce, ottimo per iniziare
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+
+# Percorso locale del modello di embedding (scaricato da setup_offline.py)
+# Se esiste la cartella locale, usa quella; altrimenti scarica da HuggingFace
+EMBEDDING_MODEL_PATH = os.path.join(MODELS_DIR, EMBEDDING_MODEL)
+
+# === MODALITÀ OFFLINE ===
+# Blocca qualsiasi tentativo di scaricare modelli da internet a runtime.
+# Il modello deve essere già presente in locale (vedi setup_offline.py).
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
 # === LLM (Ollama) ===
 # URL del server Ollama locale
