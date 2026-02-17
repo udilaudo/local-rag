@@ -96,9 +96,11 @@ def carica_pdf(cartella: str = config.DOCUMENTS_DIR) -> list:
     return documenti
 
 
-def chunking(documenti: list,
-             chunk_size: int = config.CHUNK_SIZE,
-             chunk_overlap: int = config.CHUNK_OVERLAP) -> list:
+def chunking(
+    documenti: list,
+    chunk_size: int = config.CHUNK_SIZE,
+    chunk_overlap: int = config.CHUNK_OVERLAP,
+) -> list:
     """
     Divide i documenti in chunk (pezzi) più piccoli.
 
@@ -150,8 +152,9 @@ def _crea_embeddings() -> HuggingFaceEmbeddings:
     )
 
 
-def crea_vector_store(chunks: list,
-                      persist_directory: str = config.CHROMA_DB_DIR) -> Chroma:
+def crea_vector_store(
+    chunks: list, persist_directory: str = config.CHROMA_DB_DIR
+) -> Chroma:
     """
     Crea il database vettoriale da una lista di chunk.
 
@@ -193,7 +196,9 @@ def crea_vector_store(chunks: list,
     return vector_store
 
 
-def carica_vector_store(persist_directory: str = config.CHROMA_DB_DIR) -> Optional[Chroma]:
+def carica_vector_store(
+    persist_directory: str = config.CHROMA_DB_DIR,
+) -> Optional[Chroma]:
     """
     Carica un vector store esistente da disco.
 
@@ -308,7 +313,9 @@ def indicizza_documenti() -> Chroma:
     # Step 1: carica i PDF
     documenti = carica_pdf()
     if not documenti:
-        raise ValueError("Nessun documento trovato! Metti dei PDF nella cartella documents/")
+        raise ValueError(
+            "Nessun documento trovato! Metti dei PDF nella cartella documents/"
+        )
 
     # Step 2: dividi in chunk
     chunks = chunking(documenti)
@@ -356,9 +363,7 @@ def fai_domanda(domanda: str, catena: dict) -> dict:
 
     # Step 2: combino il testo dei chunk trovati in un unico "contesto"
     # Questo contesto verrà inserito nel prompt per l'LLM
-    contesto = "\n\n---\n\n".join(
-        [doc.page_content for doc in documenti_trovati]
-    )
+    contesto = "\n\n---\n\n".join([doc.page_content for doc in documenti_trovati])
 
     # Step 3: creo il prompt finale con contesto + domanda
     prompt_finale = prompt.format(context=contesto, question=domanda)
@@ -373,7 +378,8 @@ def fai_domanda(domanda: str, catena: dict) -> dict:
         fonte = {
             "documento": doc.metadata.get("source_filename", "sconosciuto"),
             "pagina": doc.metadata.get("page", "n/a"),
-            "testo_chunk": doc.page_content[:300] + "..."  # mostro solo i primi 300 char
+            "testo_chunk": doc.page_content[:300]
+            + "...",  # mostro solo i primi 300 char
         }
         fonti.append(fonte)
 

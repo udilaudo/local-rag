@@ -24,7 +24,7 @@ import config
 # === CONFIGURAZIONE PAGINA ===
 # Queste impostazioni definiscono l'aspetto della pagina Streamlit
 st.set_page_config(
-    page_title="RAG - Paper Scientifici",
+    page_title="RAG Personale",
     page_icon="📚",
     layout="wide",  # usa tutta la larghezza dello schermo
 )
@@ -41,6 +41,7 @@ def controlla_ollama() -> bool:
         True se Ollama risponde, False altrimenti
     """
     import urllib.request
+
     try:
         # Provo a contattare il server Ollama
         urllib.request.urlopen(config.OLLAMA_BASE_URL, timeout=3)
@@ -60,8 +61,7 @@ def lista_documenti() -> list:
         return []
 
     # Filtro solo i file che finiscono con .pdf (case insensitive)
-    return [f for f in os.listdir(config.DOCUMENTS_DIR)
-            if f.lower().endswith(".pdf")]
+    return [f for f in os.listdir(config.DOCUMENTS_DIR) if f.lower().endswith(".pdf")]
 
 
 # === SIDEBAR ===
@@ -94,7 +94,9 @@ with st.sidebar:
             st.error("❌ Nessun PDF trovato nella cartella documents/")
         else:
             # Eseguo l'indicizzazione con una barra di progresso
-            with st.spinner("📊 Indicizzazione in corso... (può richiedere qualche minuto)"):
+            with st.spinner(
+                "📊 Indicizzazione in corso... (può richiedere qualche minuto)"
+            ):
                 try:
                     # Lancio la pipeline completa
                     vector_store = indicizza_documenti()
@@ -153,14 +155,10 @@ if domanda:
     # Verifico che tutto sia pronto
     if "catena" not in st.session_state:
         st.warning(
-            "⚠️ Devi prima indicizzare i documenti! "
-            "Clicca il bottone nella sidebar."
+            "⚠️ Devi prima indicizzare i documenti! " "Clicca il bottone nella sidebar."
         )
     elif not controlla_ollama():
-        st.error(
-            "❌ Ollama non è in esecuzione! "
-            "Avvialo con: `ollama serve`"
-        )
+        st.error("❌ Ollama non è in esecuzione! " "Avvialo con: `ollama serve`")
     else:
         # Tutto pronto: faccio la domanda alla pipeline RAG
         with st.spinner("🤔 Sto elaborando la risposta..."):

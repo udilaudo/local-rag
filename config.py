@@ -46,4 +46,4 @@ TOP_K = 4
 
 # === NOME COLLEZIONE CHROMADB ===
 # Nome della collezione nel database vettoriale
-COLLECTION_NAME = "My Documents"
+COLLECTION_NAME = "my-documents"
